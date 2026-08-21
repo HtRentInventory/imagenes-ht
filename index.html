@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Imágenes HT — Repositorio de fotos de equipos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --concreto:#E6E7E3; --concreto-2:#DCDED8; --papel:#FAFAF8;
+  --acero:#22272B; --acero-2:#4E555C; --gris:#8A9198;
+  --linea:#C8CBC4; --senal:#F2B705; --senal-osc:#B98B00; --r:3px;
+  --display:'Archivo','Arial Narrow',Helvetica,sans-serif;
+  --body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--concreto);color:var(--acero);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+button[disabled]{opacity:.45;cursor:progress}
+:focus-visible{outline:2px solid var(--acero);outline-offset:2px}
+
+.topbar{position:sticky;top:0;z-index:40;background:var(--acero);color:var(--papel)}
+.topbar-in{max-width:1280px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.marca{display:flex;align-items:baseline;gap:9px;flex-shrink:0}
+.marca b{font-family:var(--display);font-weight:900;font-variation-settings:'wdth' 112;font-size:21px;letter-spacing:.01em;text-transform:uppercase;line-height:1}
+.marca b em{font-style:normal;color:var(--senal)}
+.marca span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
+.buscador{flex:1;min-width:220px;position:relative}
+.buscador input{width:100%;padding:9px 12px 9px 34px;background:#2E353A;border:1px solid #3D454B;border-radius:var(--r);color:var(--papel);font-family:var(--mono);font-size:13px}
+.buscador input::placeholder{color:#79828A}
+.buscador input:focus{border-color:var(--senal);outline:none}
+.buscador svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.55}
+.acceso{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gris)}
+.punto{width:6px;height:6px;border-radius:50%;background:var(--senal);display:inline-block}
+.btn-liga{border:1px solid #3D454B;border-radius:var(--r);padding:7px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--papel);transition:.15s}
+.btn-liga:hover{background:var(--senal);color:var(--acero);border-color:var(--senal)}
+.cinta{height:6px;background:repeating-linear-gradient(115deg,var(--senal) 0 14px,#1A1F23 14px 28px)}
+
+.patios{background:var(--papel);border-bottom:1px solid var(--linea);position:sticky;top:63px;z-index:30}
+.patios-in{max-width:1280px;margin:0 auto;padding:0 20px;display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin}
+.chip{padding:13px 15px 11px;white-space:nowrap;border-bottom:3px solid transparent;display:flex;align-items:baseline;gap:7px;transition:.15s}
+.chip span{font-size:13.5px;font-weight:500}
+.chip i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--gris)}
+.chip:hover{background:var(--concreto-2)}
+.chip[aria-current="true"]{border-bottom-color:var(--senal);background:var(--concreto-2)}
+
+main{max-width:1280px;margin:0 auto;padding:0 20px 90px}
+.cab{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;padding:34px 0 20px;border-bottom:1px solid var(--linea);margin-bottom:26px}
+.cab h1{font-family:var(--display);font-weight:800;font-variation-settings:'wdth' 88;font-size:clamp(30px,6vw,52px);line-height:.95;margin:0;text-transform:uppercase;letter-spacing:-.01em}
+.cab .meta{font-family:var(--mono);font-size:11.5px;color:var(--acero-2);margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cab .meta em{font-style:normal;color:var(--linea)}
+.acciones{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--acero);border-radius:var(--r);padding:9px 14px;font-size:12.5px;font-weight:500;display:inline-flex;align-items:center;gap:7px;transition:.15s;background:transparent}
+.btn:hover:not([disabled]){background:var(--acero);color:var(--papel)}
+.btn-lleno{background:var(--acero);color:var(--papel)}
+.btn-lleno:hover:not([disabled]){background:var(--senal);color:var(--acero);border-color:var(--senal)}
+
+.rejilla{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(228px,1fr))}
+.tarjeta{background:var(--papel);border:1px solid var(--linea);border-radius:var(--r);overflow:hidden;text-align:left;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;padding:0}
+.tarjeta:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(34,39,43,.13)}
+.lienzo{position:relative;aspect-ratio:4/3;background:var(--concreto-2);overflow:hidden;border-bottom:1px solid var(--linea)}
+.lienzo img{width:100%;height:100%;object-fit:cover;display:block}
+.conteo{position:absolute;top:8px;right:8px;background:rgba(34,39,43,.86);color:var(--papel);font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:3px 7px;border-radius:2px}
+.velo{position:absolute;inset:0;background:rgba(34,39,43,.6);display:grid;place-items:center;opacity:0;transition:opacity .15s;color:var(--papel);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.tarjeta:hover .velo,.tarjeta:focus-visible .velo{opacity:1}
+.placa{background:var(--acero);color:var(--papel);padding:9px 12px;position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.placa::before,.placa::after{content:"";position:absolute;top:50%;transform:translateY(-50%);width:4px;height:4px;border-radius:50%;background:var(--gris);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.placa::before{left:5px}.placa::after{right:5px}
+.placa .niv{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.02em;padding-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.placa .marca-eq{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--senal);padding-right:8px;white-space:nowrap}
+.cuerpo{padding:11px 12px 12px;display:flex;flex-direction:column;gap:5px;flex:1}
+.cuerpo .tipo{font-size:13.5px;font-weight:600;line-height:1.25}
+.cuerpo .sub{font-family:var(--mono);font-size:10.5px;color:var(--acero-2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cuerpo .sub em{font-style:normal;color:var(--linea)}
+.etiqueta{align-self:flex-start;margin-top:3px;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border:1px solid var(--linea);border-radius:2px;color:var(--acero-2)}
+.etiqueta.excedente{border-color:var(--senal-osc);color:var(--senal-osc);background:#FDF5DC}
+
+.estado{padding:70px 20px;text-align:center;color:var(--acero-2);border:1px dashed var(--linea);border-radius:var(--r);grid-column:1/-1}
+.estado b{display:block;font-size:18px;color:var(--acero);margin-bottom:6px}
+.cargando{display:inline-block;width:22px;height:22px;border:2px solid var(--linea);border-top-color:var(--acero);border-radius:50%;animation:giro .8s linear infinite;margin-bottom:14px}
+@keyframes giro{to{transform:rotate(360deg)}}
+
+.visor{position:fixed;inset:0;z-index:60;background:#15191C;display:none;flex-direction:column}
+.visor.abierto{display:flex}
+.visor-cab{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px;border-bottom:1px solid #2E353A;flex-wrap:wrap;color:var(--papel)}
+.visor-cab .id{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.visor-cab .niv{font-family:var(--mono);font-size:13px;letter-spacing:.04em}
+.visor-cab .desc{font-size:12.5px;color:var(--gris)}
+.visor-btn{border:1px solid #3D454B;border-radius:var(--r);padding:8px 12px;font-size:12px;color:var(--papel);display:inline-flex;align-items:center;gap:7px;transition:.15s}
+.visor-btn:hover:not([disabled]){background:var(--senal);color:var(--acero);border-color:var(--senal)}
+.visor-cuerpo{flex:1;display:grid;place-items:center;position:relative;padding:18px;min-height:0}
+.marco{width:min(100%,1000px);height:100%;display:grid;place-items:center;position:relative}
+.marco img{max-width:100%;max-height:100%;object-fit:contain;border-radius:var(--r)}
+.marco .angulo{position:absolute;left:0;bottom:-4px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gris)}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(250,250,248,.1);color:var(--papel);display:grid;place-items:center;transition:.15s}
+.nav:hover{background:var(--senal);color:var(--acero)}
+.nav.prev{left:14px}.nav.next{right:14px}
+.tira{display:flex;gap:8px;padding:12px 16px 16px;overflow-x:auto;border-top:1px solid #2E353A}
+.mini{flex:0 0 auto;width:88px;aspect-ratio:4/3;background:#20262A;border:1px solid #2E353A;border-radius:2px;overflow:hidden;position:relative;padding:0;transition:.15s}
+.mini img{width:100%;height:100%;object-fit:cover;display:block}
+.mini[aria-current="true"]{border-color:var(--senal);box-shadow:0 0 0 1px var(--senal)}
+
+.aviso{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:var(--acero);color:var(--papel);padding:11px 18px;border-radius:var(--r);font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:80;border-left:3px solid var(--senal);max-width:90vw;text-align:center}
+.aviso.visible{opacity:1;transform:translate(-50%,0)}
+
+.pie{max-width:1280px;margin:0 auto;padding:24px 20px 40px;border-top:1px solid var(--linea);font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--gris);text-transform:uppercase;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+@media (max-width:640px){
+  .patios{top:110px}
+  .acciones{width:100%}
+  .btn{flex:1;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="marca"><b>Imágenes <em>HT</em></b><span>Repositorio de equipos</span></div>
+    <div class="buscador">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Buscar NIV, tipo, marca o placas…" autocomplete="off" aria-label="Buscar equipo">
+    </div>
+    <div class="acceso"><span class="punto"></span> Solo lectura</div>
+    <button class="btn-liga" id="copiar">Copiar liga</button>
+  </div>
+  <div class="cinta" aria-hidden="true"></div>
+</header>
+
+<nav class="patios" aria-label="Patios"><div class="patios-in" id="chips"></div></nav>
+
+<main>
+  <div class="cab">
+    <div>
+      <h1 id="titulo">Cargando…</h1>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div class="acciones">
+      <button class="btn btn-lleno" id="zipPatio" disabled>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v10m0 0l-4-4m4 4l4-4"/><path d="M4 18h16"/></svg>
+        Descargar patio (ZIP)
+      </button>
+    </div>
+  </div>
+  <div class="rejilla" id="rejilla">
+    <div class="estado"><span class="cargando"></span><b>Abriendo el repositorio</b>Un momento.</div>
+  </div>
+</main>
+
+<footer class="pie">
+  <span>Imágenes HT · Inmobiliaria THH</span>
+  <span id="pieConteo"></span>
+</footer>
+
+<div class="visor" id="visor" role="dialog" aria-modal="true" aria-label="Visor de fotos">
+  <div class="visor-cab">
+    <div class="id"><span class="niv" id="vNiv"></span><span class="desc" id="vDesc"></span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="visor-btn" id="vFoto">Descargar esta foto</button>
+      <button class="visor-btn" id="vZip">Descargar equipo (ZIP)</button>
+      <button class="visor-btn" id="vCerrar" aria-label="Cerrar visor">Cerrar ✕</button>
+    </div>
+  </div>
+  <div class="visor-cuerpo">
+    <button class="nav prev" id="vPrev" aria-label="Foto anterior"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="marco" id="vMarco"></div>
+    <button class="nav next" id="vNext" aria-label="Foto siguiente"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="tira" id="vTira"></div>
+</div>
+
+<div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/* ================== configuración ================== */
+const SB_URL  = 'https://myfmstaeilegsoobllni.supabase.co';
+const SB_KEY  = 'sb_publishable_9H_QYw9zDv1FO1mVLvgmCw_OSWHuERz';
+const BUCKET  = 'fotos-patio';
+
+const TOKEN = new URLSearchParams(location.search).get('t') || '';
+const $ = id => document.getElementById(id);
+const urlFoto = ruta => `${SB_URL}/storage/v1/object/public/${BUCKET}/${encodeURI(ruta)}`;
+
+/* ================== estado ================== */
+let DATOS = null, patioActivo = 'todos', filtro = '';
+let visorEq = null, visorIdx = 0;
+
+/* ================== carga ================== */
+async function cargar(){
+  if(!TOKEN){
+    return pintarEstado('Falta la liga', 'Abre el repositorio con la liga completa que te compartieron; debe terminar en <b>?t=…</b>');
+  }
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/galeria`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
+      body: JSON.stringify({p_token: TOKEN})
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    if(!d || d.error) return pintarEstado('Esta liga no está disponible', 'Puede que se haya desactivado o vencido. Pide una nueva a Servicio a Clientes.');
+    DATOS = d;
+    if(!DATOS.equipos.length) return pintarEstado('Todavía no hay fotos aquí', 'El levantamiento está publicado pero aún no se suben fotos de patio.');
+    pintarChips(); pintar();
+  }catch(e){
+    pintarEstado('No se pudo abrir el repositorio', 'Revisa tu conexión y vuelve a intentar.');
+  }
+}
+function pintarEstado(t, p){
+  $('titulo').textContent = 'Imágenes HT';
+  $('meta').innerHTML = '';
+  $('rejilla').innerHTML = `<div class="estado"><b>${t}</b>${p}</div>`;
+}
+
+/* ================== render ================== */
+function visibles(){
+  return DATOS.equipos
+    .filter(e => patioActivo==='todos' || e.patio===patioActivo)
+    .filter(e => {
+      if(!filtro) return true;
+      const t = [e.niv,e.tipo,e.marca,e.anio,e.placas,e.clasificacion].join(' ').toLowerCase();
+      return t.includes(filtro.toLowerCase());
+    });
+}
+function pintarChips(){
+  const lista = [{patio:'todos', equipos: DATOS.equipos.length}].concat(DATOS.patios);
+  $('chips').innerHTML = lista.map(p => `
+    <button class="chip" data-patio="${p.patio}" aria-current="${p.patio===patioActivo}">
+      <span>${p.patio==='todos' ? 'Todos los patios' : p.patio}</span><i>${p.equipos}</i></button>`).join('');
+  $('chips').querySelectorAll('.chip').forEach(c => c.onclick = () => {
+    patioActivo = c.dataset.patio; pintarChips(); pintar();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+}
+function pintar(){
+  const eqs = visibles();
+  const fotos = eqs.reduce((a,e)=>a+e.fotos.length,0);
+  $('titulo').textContent = patioActivo==='todos' ? (DATOS.titulo||'Todos los patios') : patioActivo;
+  $('meta').innerHTML = `Levantamiento del ${DATOS.fecha} <em>·</em> ${eqs.length} equipos <em>·</em> ${fotos} fotos`;
+  $('zipPatio').disabled = !eqs.length;
+
+  $('rejilla').innerHTML = eqs.length ? eqs.map((e,i) => `
+    <button class="tarjeta" data-i="${DATOS.equipos.indexOf(e)}">
+      <div class="lienzo">
+        <img src="${urlFoto(e.fotos[0].ruta)}" alt="${e.tipo||'Equipo'} ${e.niv}" loading="lazy" decoding="async">
+        <span class="conteo">${e.fotos.length} fotos</span>
+        <span class="velo">Ver fotos</span>
+      </div>
+      <div class="placa"><span class="niv">${e.niv}</span><span class="marca-eq">${e.marca||''}</span></div>
+      <div class="cuerpo">
+        <span class="tipo">${e.tipo||'Sin tipo'}</span>
+        <span class="sub">${[e.anio,e.clasificacion,(patioActivo==='todos'?e.patio:null)].filter(Boolean).join(' · ')}</span>
+        ${e.estado==='excedente' ? '<span class="etiqueta excedente">Excedente en patio</span>' : ''}
+      </div>
+    </button>`).join('')
+  : `<div class="estado"><b>Ningún equipo coincide con “${filtro}”</b>Busca por NIV, tipo de equipo, marca o placas.</div>`;
+
+  $('pieConteo').textContent = `${eqs.length} equipos en vista`;
+  $('rejilla').querySelectorAll('.tarjeta').forEach(t =>
+    t.onclick = () => abrirVisor(DATOS.equipos[+t.dataset.i]));
+}
+
+/* ================== visor ================== */
+function abrirVisor(e){
+  visorEq = e; visorIdx = 0;
+  $('visor').classList.add('abierto');
+  document.body.style.overflow='hidden';
+  pintarVisor(); $('vCerrar').focus();
+}
+function pintarVisor(){
+  const e = visorEq, f = e.fotos[visorIdx];
+  $('vNiv').textContent = e.niv;
+  $('vDesc').textContent = [e.tipo,e.marca,e.anio,e.patio].filter(Boolean).join(' · ');
+  $('vMarco').innerHTML = `<img src="${urlFoto(f.ruta)}" alt="${f.angulo}">
+    <span class="angulo">${visorIdx+1} / ${e.fotos.length} — ${f.angulo}</span>`;
+  $('vTira').innerHTML = e.fotos.map((x,i) => `
+    <button class="mini" data-i="${i}" aria-current="${i===visorIdx}" title="${x.angulo}">
+      <img src="${urlFoto(x.ruta)}" alt="${x.angulo}" loading="lazy"></button>`).join('');
+  $('vTira').querySelectorAll('.mini').forEach(m => m.onclick = () => { visorIdx=+m.dataset.i; pintarVisor(); });
+  $('vTira').children[visorIdx]?.scrollIntoView({block:'nearest',inline:'center'});
+}
+function mover(d){
+  if(!visorEq) return;
+  visorIdx = (visorIdx + d + visorEq.fotos.length) % visorEq.fotos.length;
+  pintarVisor();
+}
+function cerrarVisor(){ $('visor').classList.remove('abierto'); document.body.style.overflow=''; visorEq=null; }
+
+/* ================== descargas ================== */
+const limpio = s => (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+                      .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+const nombreFoto = (eq,f,i) => `${eq.niv}__${limpio(f.angulo)}__${String(i+1).padStart(2,'0')}.jpg`;
+
+function bajar(blob, nombre){
+  const u = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = u; a.download = nombre; a.click();
+  setTimeout(()=>URL.revokeObjectURL(u), 4000);
+}
+async function bajarFoto(){
+  const e = visorEq, f = e.fotos[visorIdx];
+  aviso('Descargando foto…');
+  const b = await (await fetch(urlFoto(f.ruta))).blob();
+  bajar(b, nombreFoto(e,f,visorIdx));
+}
+async function bajarZip(equipos, nombreZip, boton){
+  const total = equipos.reduce((a,e)=>a+e.fotos.length,0);
+  if(!total) return;
+  boton.disabled = true;
+  aviso(`Armando ZIP con ${total} fotos…`);
+  try{
+    const zip = new JSZip();
+    let hechas = 0;
+    for(const e of equipos){
+      const carpeta = zip.folder(`${limpio(e.patio)}/${e.niv}`);
+      for(let i=0;i<e.fotos.length;i++){
+        const f = e.fotos[i];
+        const b = await (await fetch(urlFoto(f.ruta))).blob();
+        carpeta.file(nombreFoto(e,f,i), b);
+        if(++hechas % 15 === 0) aviso(`Armando ZIP… ${hechas} de ${total}`);
+      }
+    }
+    const out = await zip.generateAsync({type:'blob'});
+    bajar(out, nombreZip);
+    aviso('ZIP listo.');
+  }catch(err){
+    aviso('No se pudo armar el ZIP. Intenta con menos equipos.');
+  }finally{ boton.disabled = false; }
+}
+
+/* ================== avisos ================== */
+let avisoT;
+function aviso(txt){
+  const a = $('aviso'); a.textContent = txt; a.classList.add('visible');
+  clearTimeout(avisoT); avisoT = setTimeout(()=>a.classList.remove('visible'), 3400);
+}
+
+/* ================== eventos ================== */
+$('q').addEventListener('input', ev => { filtro = ev.target.value.trim(); if(DATOS) pintar(); });
+$('copiar').onclick = () => { navigator.clipboard?.writeText(location.href); aviso('Liga copiada al portapapeles.'); };
+$('zipPatio').onclick = ev => bajarZip(visibles(), `imagenes-ht_${limpio(patioActivo)}_${DATOS.fecha}.zip`, ev.currentTarget);
+$('vFoto').onclick = bajarFoto;
+$('vZip').onclick = ev => bajarZip([visorEq], `${visorEq.niv}.zip`, ev.currentTarget);
+$('vCerrar').onclick = cerrarVisor;
+$('vPrev').onclick = () => mover(-1);
+$('vNext').onclick = () => mover(1);
+document.addEventListener('keydown', ev => {
+  if(ev.key==='Escape') cerrarVisor();
+  if($('visor').classList.contains('abierto')){
+    if(ev.key==='ArrowLeft') mover(-1);
+    if(ev.key==='ArrowRight') mover(1);
+  }
+});
+
+cargar();
+</script>
+</body>
+</html>
