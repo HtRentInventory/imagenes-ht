@@ -4,24 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-<title>Imágenes HT — Repositorio de fotos de equipos</title>
+<meta name="robots" content="noindex">
+<title>Imágenes HT — Administración de ligas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script>
-/* Estilos y código se piden siempre frescos: el navegador nunca
-   sirve una versión vieja aunque tenga esta página en caché. */
 document.head.insertAdjacentHTML('beforeend',
   '<link rel="stylesheet" href="app.css?v=' + Date.now() + '">');
 </script>
 </head>
-<body>
+<body class="admin">
 <div id="app"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 (function(){
   var s = document.createElement('script');
-  s.src = 'app.js?v=' + Date.now();
+  s.src = 'admin.js?v=' + Date.now();
   document.body.appendChild(s);
 })();
 </script>
