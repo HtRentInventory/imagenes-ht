@@ -174,3 +174,33 @@ body.admin .cargando{display:inline-block;width:20px;height:20px;border:2px soli
 body.admin .aviso{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:var(--acero);color:var(--papel);padding:11px 18px;border-radius:var(--r);font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:80;border-left:3px solid var(--senal);max-width:90vw;text-align:center}
 .aviso.visible{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ============================================================
+   PORTADAS DEL CATÁLOGO (seminuevos)
+   ============================================================ */
+body.semi .barra{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+body.semi code{font-family:var(--mono);font-size:12px;background:var(--concreto-2);
+  padding:1px 5px;border-radius:2px}
+
+body.semi .equipo{background:var(--papel);border:1px solid var(--linea);
+  border-radius:var(--r);padding:14px 16px;margin-bottom:10px}
+body.semi .equipo.sin-portada{border-left:3px solid var(--senal-osc)}
+body.semi .equipo-cab{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  justify-content:space-between}
+body.semi .equipo-niv{font-family:var(--mono);font-size:13px;font-weight:500}
+body.semi .equipo-meta{font-family:var(--mono);font-size:10.5px;color:var(--acero-2);flex:1}
+
+body.semi .tira-fotos{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 4px;
+  scrollbar-width:thin}
+body.semi .foto{flex:0 0 auto;width:104px;padding:0;border:2px solid transparent;
+  border-radius:var(--r);overflow:hidden;background:var(--concreto-2);
+  position:relative;transition:.15s}
+body.semi .foto img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+body.semi .foto small{display:block;font-family:var(--mono);font-size:8.5px;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--acero-2);
+  padding:3px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.semi .foto:hover{border-color:var(--acero-2)}
+body.semi .foto.es-portada{border-color:var(--senal);background:#FDF5DC}
+body.semi .foto.es-portada::after{content:"PORTADA";position:absolute;top:5px;left:5px;
+  background:var(--senal);color:var(--acero);font-family:var(--mono);font-size:8px;
+  font-weight:600;letter-spacing:.08em;padding:2px 5px;border-radius:2px}
