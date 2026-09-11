@@ -58,6 +58,9 @@ document.getElementById('app').innerHTML = `
         <button class="btn" id="btnSugerir">Proponer portadas faltantes</button>
         <button class="btn" id="btnTodos">Seleccionar todo lo visible</button>
         <button class="btn" id="btnNada">Quitar selección</button>
+        <button class="btn" id="btnPublicar">Publicar portadas a Supabase</button>
+        <button class="btn" id="btnCsv" disabled>Descargar CSV para el Excel</button>
+        <button class="btn" id="btnFeed">Copiar liga del proveedor</button>
         <button class="btn btn-lleno" id="btnZip" disabled>Descargar ZIP del catálogo</button>
       </div>
       <div class="error" id="errorPanel"></div>
@@ -148,6 +151,7 @@ function pintar(){
     `${DATOS.equipos.length} equipos con fotos · ${conPortada} con portada · ` +
     `${DATOS.equipos.length - conPortada} pendientes · ${ELEGIDOS.size} seleccionados`;
   $('btnZip').disabled = ELEGIDOS.size === 0;
+  $('btnCsv').disabled = ELEGIDOS.size === 0;
 
   if(!eqs.length){
     $('lista').innerHTML = `<div class="estado"><b>Nada que mostrar</b>Ajusta el patio o el filtro.</div>`;
@@ -186,6 +190,7 @@ function pintar(){
     c.checked ? ELEGIDOS.add(c.dataset.sel) : ELEGIDOS.delete(c.dataset.sel);
     $('resumen').textContent = $('resumen').textContent.replace(/\d+ seleccionados/, ELEGIDOS.size+' seleccionados');
     $('btnZip').disabled = ELEGIDOS.size === 0;
+    $('btnCsv').disabled = ELEGIDOS.size === 0;
   });
   $('lista').querySelectorAll('.foto').forEach(b => b.onclick = async () => {
     const eq = DATOS.equipos.find(x => x.id === b.dataset.equipo);
@@ -247,6 +252,86 @@ async function exportar(boton){
   }finally{ boton.disabled = false; }
 }
 
+/* ================== CSV con las direcciones ==================
+   Para pegar como columnas en el Excel que subes al dashboard
+   del proveedor: cada NIV con la dirección de su portada. */
+const TOKEN_FEED = '4bea4029ad3a426e88f2e7f2d5ad833c';
+const ligaFeed = () =>
+  `${SB_URL}/rest/v1/rpc/catalogo?p_token=${TOKEN_FEED}&apikey=${SB_KEY}`;
+
+/* Dirección predecible de la portada: termina en <NIV>_portada.jpg,
+   que es la nomenclatura que espera el importador del proveedor. */
+const nombrePortada = niv => `${niv}_portada.jpg`;
+const urlPortada    = niv =>
+  `${SB_URL}/storage/v1/object/public/catalogo/${encodeURIComponent(nombrePortada(niv))}`;
+
+/* Copia la portada de cada equipo al bucket "catalogo" con ese nombre.
+   Reemplaza la que hubiera, así que se puede correr cuantas veces sea. */
+async function publicarPortadas(boton){
+  const eqs = (ELEGIDOS.size ? DATOS.equipos.filter(e => ELEGIDOS.has(e.id)) : visibles())
+              .filter(e => e.fotos.some(f => f.portada));
+  if(!eqs.length) return aviso('No hay equipos con portada en la vista.');
+  if(!confirm(`Se van a publicar ${eqs.length} portadas al bucket "catalogo".\n\n` +
+              `Las que ya existan se reemplazan por la versión actual. ¿Continuar?`)) return;
+
+  boton.disabled = true;
+  let ok = 0, fallos = [];
+  try{
+    for(const e of eqs){
+      try{
+        const f = e.fotos.find(x => x.portada);
+        const blob = await (await fetch(urlFoto(f.ruta))).blob();
+        const r = await fetch(
+          `${SB_URL}/storage/v1/object/catalogo/${encodeURIComponent(nombrePortada(e.niv))}`, {
+            method:'POST',
+            headers:{
+              'apikey': SB_KEY,
+              'Authorization': 'Bearer ' + SESION.access_token,
+              'Content-Type': 'image/jpeg',
+              'x-upsert': 'true'
+            },
+            body: blob
+          });
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        ok++;
+        if(ok % 10 === 0) aviso(`Publicando… ${ok} de ${eqs.length}`);
+      }catch(err){ fallos.push(e.niv); }
+    }
+    aviso(fallos.length
+      ? `${ok} publicadas, ${fallos.length} con error.`
+      : `${ok} portadas publicadas.`);
+    if(fallos.length)
+      $('errorPanel').textContent = 'No se pudieron publicar: ' + fallos.join(', ');
+  }finally{ boton.disabled = false; }
+}
+
+function csvCampo(v){
+  const s = (v == null ? '' : String(v));
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+function exportarCsv(boton){
+  const eqs = DATOS.equipos.filter(e => ELEGIDOS.has(e.id));
+  if(!eqs.length) return;
+  const cab = ['NIV','PATIO','TIPO','MARCA','ANIO','FOTO_PORTADA','FOTOS'];
+  const filas = eqs.map(e => {
+    const portada = e.fotos.find(f => f.portada);
+    return [
+      e.niv, e.patio, e.tipo, e.marca, e.anio,
+      portada ? urlPortada(e.niv) : '',
+      e.fotos.map(f => urlFoto(f.ruta)).join(' | ')
+    ].map(csvCampo).join(',');
+  });
+  const csv = '\uFEFF' + [cab.join(',')].concat(filas).join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const u = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = u;
+  a.download = `portadas_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(u), 5000);
+  const sin = eqs.filter(e => !e.fotos.some(f=>f.portada)).length;
+  aviso(sin ? `CSV listo. Ojo: ${sin} equipos van sin portada.` : 'CSV listo.');
+}
+
 /* ================== avisos ================== */
 let avisoT;
 function aviso(txt){
@@ -289,3 +374,9 @@ $('btnSugerir').onclick = async ev => {
 $('btnTodos').onclick = () => { visibles().forEach(e => ELEGIDOS.add(e.id)); pintar(); };
 $('btnNada').onclick  = () => { ELEGIDOS.clear(); pintar(); };
 $('btnZip').onclick   = ev => exportar(ev.currentTarget);
+$('btnCsv').onclick  = ev => exportarCsv(ev.currentTarget);
+$('btnFeed').onclick = () => {
+  navigator.clipboard?.writeText(ligaFeed());
+  aviso('Liga del feed copiada. Pásasela al proveedor.');
+};
+$('btnPublicar').onclick = ev => publicarPortadas(ev.currentTarget);
